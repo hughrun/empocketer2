@@ -10,7 +10,14 @@ services:
     volumes:
       - data:/usr/src/app/data
       - feed_images:/usr/src/app/static/images/feeds
-      
+
+  checker:
+    build: ./checker
+    container_name: empocketer_checker
+    restart: unless-stopped
+    volumes:
+      - data:/usr/src/app/data
+
 volumes:
   data:
     driver: local
