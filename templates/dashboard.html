@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- vue development version, includes helpful console warnings -->
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<!-- vue production version, optimized for size and speed -->
+	<!-- <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+	<meta charset="utf-8">
+	<meta lang="en-au">
+	<title>empocketer 2 demo</title>
+
+</head>
+<body>
+	<div id="app">
+		<div class="loader" v-if="loading">
+			<div>
+				<div class="lds-dual-ring"></div>
+				<div v-if="addingFeeds" class="feed-counter">
+					<p>processed [[ feedsAdded ]] of [[ totalFeedsToAdd ]]</p>
+				</div>
+			</div>
+		</div>
+		<div v-if="addingFeed || addingList || managingList || managingUser || managingFeed || showingErrors">
+			<header>
+				<section class="header">
+					<h1><a href="/me">Empocketer</a></h1>
+				</section>
+			</header>
+			<main class="main">
+				<add-feed 
+					v-bind:active-list="activeList" 
+					v-if="addingFeed" 
+					@cancel-addfeed="cancelAddFeed"
+					@add-feed="addFeed"
+				></add-feed>
+				<add-list 
+					v-bind:active-list="activeList" 
+					v-if="addingList" 
+					@cancel-addlist="cancelAddList"
+					@adding="setAdding"
+					@add-list="addList"
+					@increment="incrementFeeds"
+					@loading="setLoading"
+					@set-total="setTotal"
+					@opml-completed="resetAll"
+					@show-errors="showErrors"
+					@add-message="addMessage"
+				></add-list>
+				<manage-list
+					v-if="managingList" 
+					v-bind:active-list="activeList" 
+					@cancel-manage="cancelManage" 
+					@delete-list="deleteList" 
+					@loading="setLoading" 
+					@rename-list="renameList"
+				></manage-list>
+				<manage-feed
+					v-if="managingFeed" 
+					v-bind:feed="managingFeed" 
+					v-bind:list="activeList"
+					@cancel-manage="cancelManage" 
+					@delete-feed="deleteFeed" 
+					@loading="setLoading" 
+				></manage-feed>
+				<manage-account 
+					v-if="managingUser" 
+					v-bind:lists="lists"
+					@cancel-manage="cancelManage"
+				></manage-account>
+				<error-list
+					v-if="showingErrors"
+					v-bind:errors="errors"
+					@exit="exitErrors"
+				></error-list>
+			</main>
+		</div>
+
+		<div v-else>
+			<header>
+				<section class="header">
+					<h1><a href="/">Empocketer</a></h1>
+				</section>
+				<nav>
+					<span class="chip logged-in-as" v-on:click="managingUser = true">[[ user ]]</span>
+					<!-- 	replace the v-on:click with a method that EITHER makes inactive list active 
+					 			OR if it is already active, shows a rename-or-delete popup -->
+					<span 
+					v-for="list in lists" 
+					class="chip listname" 
+					v-bind:class="{'chip-active': list.isActive}" 
+					v-on:click="setActive(lists.indexOf(list))" 
+					v-bind:key="list.list_id">[[ list.name ]]</span>
+					<span class="chip list-placeholder" v-on:click="addingList = true" >Add list</span>
+				</nav>
+			</header>
+			<main class="main">
+				<message-list
+					v-if="messages.length > 0"
+					v-bind:messages="messages" 
+					@remove-message="removeMessage"
+			></message-list>
+				<section class=feeds-list>
+					<section v-for="feed in activeList.feeds" v-on:click="manageFeed(feed)" class="listing">
+						<div class="feed-image">
+							<img v-bind:src="feed.image"/>
+						</div>
+						<div class="feed-meta">
+							<h2 class="feed-title">[[ feed.name ]]</h2>
+							<div>Latest post: [[ feed.latest ]]</div>
+							<div class="status-panel">
+								<span class="chip" v-bind:class="feed.status">[[ feed.status ]]</span>
+							</div>
+						</div>
+					</section>
+	
+					<section v-if="activeList.list_id" v-on:click="addingFeed = true" class="placeholder">
+						<div class="feeds-placeholder">
+							<h2>Add feed</h2>
+						</div>
+					</section>
+	
+				</section>
+			</main>
+			<footer class="footer">
+				<p>
+					Empocketer was built by <a href="https://www.hughrundle.net">Hugh Rundle</a> for himself and friends, using <code>Vue</code>, <code>nedb</code> and the Pocket API. It is not associated with Pocket or Mozilla.
+				</p>
+				<p>
+					Login page photo by <a href="https://unsplash.com/@neko_tamo?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Katarina Šikuljak</a> on Unsplash. Default feed images from <a href="https://www.biodiversitylibrary.org">Biodiversity Heritage Library</a>. Fonts used are <a href="https://www.fontsquirrel.com/fonts/Jr-Hand">Jr Hand</a>, <a href="https://www.fontsquirrel.com/fonts/asap">ASAP Medium</a> and Tahoma.
+				</p>
+				<p>
+					<a href="https://github.com/hughrun/empocketer">The code</a> is openly licensed and available just like all the awesome things used to build it.
+				</p>
+			</footer>
+		</div>
+	</div>
+	<!-- axios for AJAX calls -->
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<!-- vue file -->
+	<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

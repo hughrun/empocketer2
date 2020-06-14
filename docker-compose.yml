@@ -1,0 +1,18 @@
+version: "2"
+services:
+
+  app:
+    build: .
+    container_name: empocketer_app
+    restart: unless-stopped
+    ports:
+      - 5000:5000
+    volumes:
+      - data:/usr/src/app/data
+      - feed_images:/usr/src/app/static/images/feeds
+      
+volumes:
+  data:
+    driver: local
+  feed_images:
+    driver: local
