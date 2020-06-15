@@ -147,6 +147,7 @@ def add_feed_to_db(args):
         else:
             x = randint(1, 20)
             image_location = '../static/images/default/' + str(x) + '.jpg'
+
         if 'updated' in data.feed:
             date_stamp = data.feed.updated_parsed
             published = time.strftime('%a %d %b %Y', date_stamp)
@@ -161,7 +162,11 @@ def add_feed_to_db(args):
             date_stamp = data.modified_parsed
             published = time.strftime('%a %d %b %Y', date_stamp)
         else:
+            date_stamp = time.localtime(time.time())
             published = 'unknown'
+        
+        pf = time.mktime(date_stamp)
+        
         if 'title' in data.feed and len(data.feed.title) > 0:
             feed_title = data.feed.title[:60]
         elif 'link' in data.feed and len(data.feed.link) > 0:
@@ -180,8 +185,8 @@ def add_feed_to_db(args):
         u = (session['username'],)
         cursor.execute('SELECT token FROM users WHERE username=?', u)
         user_token = cursor.fetchone()
-        f = (feed_title, feed, image_location, published, 0, args['list_id'], user_token[0],)
-        cursor.execute('INSERT INTO feeds(name, url, image, last_published, failing, list_id, user_token) VALUES(?,?,?,?,?,?,?)', f)
+        f = (feed_title, feed, image_location, published, pf, 0, args['list_id'], user_token[0],)
+        cursor.execute('INSERT INTO feeds(name, url, image, last_published, last_published_float, failing, list_id, user_token) VALUES(?,?,?,?,?,?,?,?)', f)
         db.commit()
         feed_id = cursor.lastrowid
         db.close()
