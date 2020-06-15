@@ -12,7 +12,9 @@ services:
       - feed_images:/usr/src/app/static/images/feeds
 
   checker:
-    build: ./checker
+    build:
+      context: .
+      dockerfile: checker/Dockerfile
     container_name: empocketer_checker
     restart: unless-stopped
     volumes:
