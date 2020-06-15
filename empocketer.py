@@ -7,10 +7,12 @@ import listparser as lp
 from random import randint
 import re
 import requests
+import socket
 import settings
 import sqlite3
 import time
 
+socket.setdefaulttimeout(60)
 # ===============================================================
 # Create sqlite database if it does not already exist
 # ===============================================================
@@ -141,7 +143,7 @@ def add_feed_to_db(args):
             # so we need to use a different root directory when saving it
             # from what we reference in the database
             image_real_location = './static/images/feeds/' + image_name + '.jpg'
-            r = requests.get(image_url, allow_redirects=True)
+            r = requests.get(image_url, allow_redirects=True, timeout=5)
             open(image_real_location, 'wb+').write(r.content)
             image_location = '.' + image_real_location
         else:
@@ -196,7 +198,8 @@ def add_feed_to_db(args):
             "image" : image_location,
             "latest" : published,
             "name" : feed_title,
-            "url" : feed }
+            "url" : feed 
+        }
 
         return {
             "status" : "ok",
@@ -244,7 +247,7 @@ def login():
                     "redirect_uri": redirect_uri
                 }
             )
-            r = requests.post(url, data=payload, headers=headers)
+            r = requests.post(url, data=payload, headers=headers, timeout=5)
 
             # now redirect the user to Pocket, with the code
             data = r.json()
@@ -273,7 +276,7 @@ def authorise():
                 "code" : session['auth_code']
             }
         )
-        r = requests.post(url, data=payload, headers=headers)
+        r = requests.post(url, data=payload, headers=headers,timeout=5)
         data = r.json()
         # add or update user in database
         db = sqlite3.connect('data/empocketer.db')
