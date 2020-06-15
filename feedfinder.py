@@ -4,10 +4,13 @@
 from bs4 import BeautifulSoup as bs4
 import requests
 import feedparser
+import socket
 import urllib.parse
 
+socket.setdefaulttimeout(60) # set a socket timeout for feedparser
+
 def findfeed(site):
-    raw = requests.get(site).text
+    raw = requests.get(site, allow_redirects=True, timeout=60).text
     result = []
     possible_feeds = []
     html = bs4(raw, features="lxml")

@@ -12,7 +12,8 @@ import settings
 import sqlite3
 import time
 
-socket.setdefaulttimeout(60)
+socket.setdefaulttimeout(60) # set a socket timeout for feedparser
+
 # ===============================================================
 # Create sqlite database if it does not already exist
 # ===============================================================
@@ -144,7 +145,7 @@ def add_feed_to_db(args):
             # from what we reference in the database
             image_real_location = './static/images/feeds/' + image_name + '.jpg'
             try:
-                r = requests.get(image_url, allow_redirects=True, timeout=60)
+                r = requests.get(image_url, allow_redirects=True, timeout=20)
                 open(image_real_location, 'wb+').write(r.content)
                 image_location = '.' + image_real_location
             except:
@@ -251,7 +252,7 @@ def login():
                     "redirect_uri": redirect_uri
                 }
             )
-            r = requests.post(url, data=payload, headers=headers, timeout=60)
+            r = requests.post(url, data=payload, headers=headers, timeout=20)
 
             # now redirect the user to Pocket, with the code
             data = r.json()
@@ -280,7 +281,7 @@ def authorise():
                 "code" : session['auth_code']
             }
         )
-        r = requests.post(url, data=payload, headers=headers,timeout=60)
+        r = requests.post(url, data=payload, headers=headers,timeout=20)
         data = r.json()
         # add or update user in database
         db = sqlite3.connect('data/empocketer.db')
