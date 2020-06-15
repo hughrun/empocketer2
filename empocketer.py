@@ -143,9 +143,13 @@ def add_feed_to_db(args):
             # so we need to use a different root directory when saving it
             # from what we reference in the database
             image_real_location = './static/images/feeds/' + image_name + '.jpg'
-            r = requests.get(image_url, allow_redirects=True, timeout=5)
-            open(image_real_location, 'wb+').write(r.content)
-            image_location = '.' + image_real_location
+            try:
+                r = requests.get(image_url, allow_redirects=True, timeout=60)
+                open(image_real_location, 'wb+').write(r.content)
+                image_location = '.' + image_real_location
+            except:
+                x = randint(1, 20)
+                image_location = '../static/images/default/' + str(x) + '.jpg'
         else:
             x = randint(1, 20)
             image_location = '../static/images/default/' + str(x) + '.jpg'
@@ -247,7 +251,7 @@ def login():
                     "redirect_uri": redirect_uri
                 }
             )
-            r = requests.post(url, data=payload, headers=headers, timeout=5)
+            r = requests.post(url, data=payload, headers=headers, timeout=60)
 
             # now redirect the user to Pocket, with the code
             data = r.json()
@@ -276,7 +280,7 @@ def authorise():
                 "code" : session['auth_code']
             }
         )
-        r = requests.post(url, data=payload, headers=headers,timeout=5)
+        r = requests.post(url, data=payload, headers=headers,timeout=60)
         data = r.json()
         # add or update user in database
         db = sqlite3.connect('data/empocketer.db')
