@@ -140,13 +140,13 @@ def add_feed_to_db(args):
             # the image is referenced from this script but also from the html file
             # so we need to use a different root directory when saving it
             # from what we reference in the database
-            image_real_location = './static/images/feeds/' + image_name + '.png'
+            image_real_location = './static/images/feeds/' + image_name + '.jpg'
             r = requests.get(image_url, allow_redirects=True)
             open(image_real_location, 'wb+').write(r.content)
             image_location = '.' + image_real_location
         else:
-            x = randint(1, 3) # TODO: add more images!
-            image_location = '../static/images/default/' + str(x) + '.png'
+            x = randint(1, 20)
+            image_location = '../static/images/default/' + str(x) + '.jpg'
         if 'updated' in data.feed:
             date_stamp = data.feed.updated_parsed
             published = time.strftime('%a %d %b %Y', date_stamp)
@@ -225,27 +225,31 @@ def login():
     if 'username' in session:
         return redirect(url_for('dashboard'))
     else:
-        # POST to Pocket to get an authorisation code
-        headers = {
-            'content-type' : 'application/json; charset=UTF-8',
-            'X-Accept' : 'application/json'
-            }
-        redirect_uri = settings.url + "/authorise"
-        url = 'https://getpocket.com/v3/oauth/request'
-        payload = json.dumps(
-            {
-                "consumer_key": settings.consumer_key,
-                "redirect_uri": redirect_uri
-            }
-        )
-        r = requests.post(url, data=payload, headers=headers)
+        try:
+            # POST to Pocket to get an authorisation code
+            headers = {
+                'content-type' : 'application/json; charset=UTF-8',
+                'X-Accept' : 'application/json'
+                }
+            redirect_uri = settings.url + "/authorise"
+            url = 'https://getpocket.com/v3/oauth/request'
+            payload = json.dumps(
+                {
+                    "consumer_key": settings.consumer_key,
+                    "redirect_uri": redirect_uri
+                }
+            )
+            r = requests.post(url, data=payload, headers=headers)
 
-        # now redirect the user to Pocket, with the code
-        data = r.json()
-        authorize_url = 'https://getpocket.com/auth/authorize?request_token=' + data['code'] + '&redirect_uri=' + redirect_uri
-        # store the code in the session data because we need it later at /authorise
-        session['auth_code'] = data['code']
-        return redirect(authorize_url, code=307)
+            # now redirect the user to Pocket, with the code
+            data = r.json()
+            authorize_url = 'https://getpocket.com/auth/authorize?request_token=' + data['code'] + '&redirect_uri=' + redirect_uri
+            # store the code in the session data because we need it later at /authorise
+            session['auth_code'] = data['code']
+            return redirect(authorize_url, code=307)
+        except Exception as e:
+            print(e)
+            abort(500)
 
 @app.route('/authorise/')
 def authorise():
