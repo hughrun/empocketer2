@@ -14,7 +14,7 @@ def check_feeds():
     for feed in feeds:
         data = feedparser.parse(feed[0])
         for post in data.entries:
-            if (time.mktime(post.published_parsed) > feed[1]):
+            if ( 'published_parsed' in post and time.mktime(post.published_parsed) > feed[1]):
 
               try:
                   url = 'https://getpocket.com/v3/add'
