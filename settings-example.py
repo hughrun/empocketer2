@@ -1,3 +1,3 @@
 consumer_key = ""
-url = "http://localhost:5000"
+url = "https://example.com"
 frequency = 2
