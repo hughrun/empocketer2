@@ -127,11 +127,11 @@ def add_feed_to_db(args):
 
         data = feedparser.parse(feed)
 
-        if data.bozo:
-            return {
-                "status" : "error",
-                "error" : "URL has no feed or does not exist"
-            }
+        # if data.bozo:
+        #     return {
+        #         "status" : "error",
+        #         "error" : "URL has no feed or does not exist"
+        #     }
 
         if 'image' in data.feed:
             image_url = data.feed.image.href
@@ -215,7 +215,7 @@ def add_feed_to_db(args):
         print(e)
         return {
             "status" : "error",
-            "error" : str(e)
+            "error" : "Could not read feed - " + str(e)
         }
 
 # ===============================================================
