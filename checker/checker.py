@@ -26,6 +26,7 @@ def check_feeds():
                   
                   payload = json.dumps({
                           "url": post.link,
+                          "tags": "empocketer",
                           "consumer_key": settings.consumer_key,
                           "access_token": feed[2]
                       })
