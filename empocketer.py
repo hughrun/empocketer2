@@ -216,11 +216,22 @@ def add_feed_to_db(args):
             "error" : None
         }
     except Exception as e:
-        print(e)
-        return {
-            "status" : "error",
-            "error" : "Could not read feed - " + str(e)
-        }
+        
+        unique = str(e)[:6] == "UNIQUE"
+
+        if unique:
+            
+            return {
+                "status" : "error",
+                "error" : "Feed is already in this list!"
+            }
+        
+        else:
+
+            return {
+                "status" : "error",
+                "error" : "Could not read feed - " + str(e)
+            }
 
 # ===============================================================
 # Routes with Flask
