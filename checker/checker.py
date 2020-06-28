@@ -13,8 +13,9 @@ def check_feeds():
     db.close()
     for feed in feeds:
         data = feedparser.parse(feed[0])
+        lpf = feed[1]
         for post in data.entries:
-            if ( 'published_parsed' in post and time.mktime(post.published_parsed) > feed[1]):
+            if ( 'published_parsed' in post and time.mktime(post.published_parsed) > lpf):
 
               try:
                   url = 'https://getpocket.com/v3/add'
@@ -34,15 +35,23 @@ def check_feeds():
                   r = requests.post(url, data=payload, headers=headers)
 
                   if r.status_code == 200:
-                      # update the last_published_float value for this feed listing only
-                      # if we update all feeds with this URL, we might update one that 
-                      # hasn't been processed yet.
-                      db = sqlite3.connect('data/empocketer.db')
-                      cursor = db.cursor()
-                      t = (time.mktime(post.published_parsed),feed[3],) 
-                      cursor.execute('UPDATE feeds SET last_published_float=? WHERE id=?', t)
-                      db.commit()
-                      db.close()
+                      # update the last_published and last_published_float values for this feed listing, but only if the published date is newer than the most recent post recorded.
+
+                      # Note that we don't rely on the value we got from the database because if the feed is arranged in reverse-chronological order we will end up recording a date that is the least-recent post in the feed instead of the most-recent.
+                    
+                    if time.mktime(post.published_parsed) > lpf:
+
+                        db = sqlite3.connect('data/empocketer.db')
+                        cursor = db.cursor()
+                        published = time.strftime('%a %d %b %Y', post.published_parsed)
+                        t = (published, time.mktime(post.published_parsed),feed[3],) 
+                        cursor.execute('UPDATE feeds SET last_published=?, last_published_float=? WHERE id=?', t)
+                        db.commit()
+                        db.close()
+
+                        # update lpf value for the rest of this loop
+                        lpf = time.mktime(post.published_parsed)
+
               except Exception as e:
                 print('ERROR', datetime.datetime.now(), str(e))
 

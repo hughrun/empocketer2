@@ -167,7 +167,10 @@ def add_feed_to_db(args):
             published = time.strftime('%a %d %b %Y', date_stamp)
         elif len(data.entries) > 0 and 'published_parsed' in data.entries[0]:
             i = len(data.entries) - 1
-            date_stamp = data.entries[i].published_parsed
+            first_date_stamp = data.entries[0].published_parsed
+            last_date_stamp = data.entries[i].published_parsed
+            is_reverse_chron = time.mktime(first_date_stamp) > time.mktime(first_date_stamp)
+            date_stamp = first_date_stamp if is_reverse_chron else last_date_stamp
             published = time.strftime('%a %d %b %Y', date_stamp)
         elif 'modified' in data:
             date_stamp = data.modified_parsed
