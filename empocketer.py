@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 #    empocketer version 2 : an RSS-to-Pocket web app
 #    Copyright (C) 2020  Hugh Rundle
 #
@@ -129,11 +131,9 @@ def add_feed_to_db(args):
     try:
         if 'url' in args:
             # get feed link from site
-            ff = findfeed(args['url'])
+            feed = findfeed(args['url'])
 
-            if len(ff) > 0:
-                feed = ff[0]
-            else:
+            if feed == None:
                 return {
                     "status" : "error",
                     "error" : "URL has no feed or does not exist"
