@@ -643,6 +643,7 @@ nav > span {
 
 .popup.errors {
   width: 90vw;
+  cursor: default;
 }
 
 .popup.errors > * {
@@ -710,6 +711,15 @@ nav > span {
   text-align: right;
   cursor: pointer;
   padding-right: 1em;
+}
+
+// error list from opml upload
+
+.error-list {
+  list-style-position: inside;
+  list-style: none;
+  text-align: left;
+  line-height: 2rem;
 }
 
 /* loader

@@ -673,6 +673,12 @@ nav > span {
   padding-right: 1em;
 }
 
+.error-list {
+  list-style-position: inside;
+  list-style: none;
+  text-align: left;
+}
+
 /* loader
    ========================================================================== */
 .lds-dual-ring {

@@ -31,7 +31,7 @@ Vue.component('error-list', {
 <div class="listing popup errors">
   <p><strong>Some feeds could not be added. Please check that these feeds are valid before trying again</strong></p>
   <div>
-    <ul>
+    <ul class="error-list">
       <li v-for="error in errors"> [[ error ]]</li>
     </ul>
   </div>
