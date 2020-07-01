@@ -13,13 +13,19 @@
 
 /* SASS variables
    ========================================================================== */
+$active-colour: #FE6B55;
+$active-offset-colour: #fff;
 $standard-colour: #3a3a3a;
 $placeholder-colour: #999;
 $neutral-colour: #FBEAD3;
-$header-colour: #A7732B;
+$header-colour: #000;
 $message-colour: lightyellow;
+$positive-colour: #b2d8b2;
+$negative-colour: #ff9999;
+
 $pop-up-border: solid 2px $header-colour;
 $placeholder-border: dashed 2px $placeholder-colour;
+
 $standard-font: "Tahoma", "Verdana", "Arial", sans-serif;
 $header-font: "Asap Medium", sans-serif;
 $title-font: "Junior Hand", "Asap Medium", sans-serif;
@@ -403,13 +409,24 @@ h1, h2, h3, h4, h5, h6 {
   font-family: $header-font;
 }
 
+button {
+  border: 0;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  white-space: nowrap;
+}
+
 .header,
 .footer {
   contain: content;
-  background-color: $standard-colour;
-  color: #fff;
+  background-color: $neutral-colour;
+  color: $header-colour;
   padding: 2rem;
   line-height: 1.6rem;
+}
+
+.header {
+  background: center / cover url('images/header.jpg');
 }
 
 .header a,
@@ -423,8 +440,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .footer a {
   text-decoration: none;
-  border-bottom: 2px solid #A7732B;
-  color: #fff;
+  color: $header-colour;
   font-family: $title-font;
   font-size: 1.2em;
 }
@@ -511,9 +527,9 @@ nav > span {
 }
 
 .chip-active {
-  background-color: $header-colour;
-  border-color: $header-colour;
-  color: #fff;
+  background-color: $active-colour;
+  border-color: $active-colour;
+  color: $active-offset-colour;
 }
 
 .listname {
@@ -535,14 +551,14 @@ nav > span {
 }
 
 .active {
-  background: #b2d8b2;
-  border: 1px solid #b2d8b2;
+  background: $positive-colour;
+  border: 1px solid $positive-colour;
   color: #fff;
 }
 
 .failing {
-  background: #ff9999;
-  border: 1px solid #ff9999;
+  background: $negative-colour;
+  border: 1px solid $negative-colour;
   color: #fff;
 }
 
@@ -563,7 +579,7 @@ nav > span {
 }
 
 #home .main {
-  background: center 0 no-repeat url('images/empocketer.jpg');
+  background: center / cover url('images/empocketer.jpg');
   background-size: cover;
   height: 100%;
   min-height: 100vh;
@@ -574,6 +590,7 @@ nav > span {
 }
 
 #logo {
+  margin-top: 45vh;
   text-align: center;
 }
 
@@ -590,16 +607,18 @@ nav > span {
 
 #logo a {
   background-color: transparent;
-  color: #fff;
-  border: 2px solid #fff;
+  color: $header-colour;
+  border: 2px solid $header-colour;
   border-radius: 5px;
   padding: 1rem 2rem;
   font-size: 1.4rem;
   text-decoration: none;
 }
 
-#home .footer {
-  background-color: #232222;;
+#home .footer,
+#home .footer a {
+  background-color: #232222;
+  color: #fff;
 }
 
 /* pop ups
@@ -635,20 +654,19 @@ nav > span {
 }
 
 .popup button {
-  color: #fff;
-  background-color: $header-colour;
+  background-color: $neutral-colour;
   margin: 1em auto;
   padding: 0.5em;
 }
 
 .popup .cancel {
-  background-color: $standard-colour;
+  color: #3a3a3a;
+  background-color: #A5C9EE;
 }
 
 .popup input,
 .add-buttons,
 .popup form {
-  // font-size: 1.4em;
   border-color: $header-colour;
   width: 90%;
 }
@@ -665,6 +683,10 @@ nav > span {
 .popup label {
   margin: 0.5em auto;
   width: 90%;
+}
+
+.add-buttons > button {
+  box-shadow: -4px 4px 4px #ddd;
 }
 
 /* messages

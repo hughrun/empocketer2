@@ -65,7 +65,7 @@ Vue.component('add-feed', {
     <button v-on:click="addFeed">Add feed URL</button>
     <button v-on:click="addUrl">Add site URL</button>
   </div>
-  <button class="cancel" v-on:click="cancelAddFeed">Cancel</button>
+  <button class="cancel listing" v-on:click="cancelAddFeed">Cancel</button>
 </div>
 `,
   methods: {
@@ -104,12 +104,12 @@ Vue.component('add-list', {
   <form v-on:submit.prevent="addList">
       <label for="listname">Enter a name for your list</label>
       <input id="listname" name="listname" type="text"/>
-      <button class="">Add List</button>
+      <button class="listing">Add List</button>
     </form>
     <form v-on:submit.prevent="uploadOpml">
       <label for="opml">...Or upload an OPML file</label>
       <input type="file" id="opml" name="opml">
-      <button>Upload OPML</button>
+      <button class="listing">Upload OPML</button>
     </form>
     <button class="listing cancel" v-on:click="cancelAddList">Cancel</button>
 </div>
@@ -187,7 +187,7 @@ Vue.component('manage-list', {
   <form v-on:submit.prevent="renameList">
     <label for="listname">Enter a name for your list</label>
     <input id="listname" name="list_name" type="text"/>
-    <button class="">Rename List</button>
+    <button class="listing">Rename List</button>
   </form>
   <button class="listing" v-on:click="deleteList">Delete list</button>
   <button class="listing cancel" v-on:click="cancelManage">Cancel</button>
