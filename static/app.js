@@ -215,19 +215,51 @@ Vue.component('manage-list', {
 
 Vue.component('manage-feed', {
   props: ['feed', 'list'],
+  data () {
+    return {
+      renaming: false
+    }
+  },
   template: `
 <div class="listing popup">
+  <h3>[[ feed.name ]]</h3>
+  <div>
+  <strong>Site: </strong><br/>
+  <a v-bind:href="feed.link">[[ feed.link ]]</a>
+  </div>
+  <div>
+  <strong>Feed: </strong><br/>
+  <a v-bind:href="feed.url">[[ feed.url ]]</a>
+  </div>
+  <form v-if="renaming" v-on:submit.prevent="renameFeed">
+    <label for="feedname">Enter a new name for your feed</label>
+    <input id="feedname" name="feed_name" type="text"/>
+    <button class="listing">Update!</button>
+  </form>
+  <button class="listing" v-if="renaming == false" v-on:click="setRenaming">Rename Feed</button>
   <button class="listing" v-on:click="deleteFeed">Delete Feed</button>
-  <button class="listing cancel" v-on:click="cancelManage">Cancel</button>
+  <button class="listing cancel" v-on:click="cancelManage">Close</button>
 </div>
   `,
   methods: {
     cancelManage() {
       this.$emit('cancel-manage')
+      this.renaming = false
     },
     deleteFeed() {
       this.$emit('loading', true)
       this.$emit('delete-feed', {"feed" : this.feed, "list" : this.list.list_id})
+    },
+    renameFeed(e) {
+      this.$emit('loading', true)
+      payload = {
+        "feed_id" : this.feed.feed_id,
+        "feed_name" : e.target.feed_name.value
+      }
+      this.$emit('rename-feed', payload)
+    },
+    setRenaming() {
+      this.renaming = true
     }
   },
   delimiters: ['[[',']]']
@@ -430,6 +462,29 @@ var vm = new Vue({
     removeMessage(msg) {
       // fired when click on X to get rid of it
       Vue.delete(this.messages, this.messages.indexOf(msg))
+    },
+    renameFeed (data) {
+      this.managingFeed = false
+      if (data.feed_name) {
+        axios.post('/rename-feed', data)
+        .then( res => {
+          if (!res.data.error) {
+            let index = this.lists.findIndex(x => x = this.activeList)
+            let f = (x) => x.feed_id == data.feed_id
+            let i = this.activeList.feeds.findIndex(f)
+            Vue.set(this.lists[index].feeds[i], 'name', data.feed_name)
+          } else {
+            this.messages.push(res.data.error)
+          }
+          this.loading = false
+        })
+        .catch(err => {
+          this.messages.push(err)
+        })
+      } else {
+        this.messages.push('You must enter a name to rename your feed')
+        this.loading = false
+      }
     },
     renameList (data) {
       this.managingList = false

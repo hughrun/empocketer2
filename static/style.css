@@ -597,6 +597,10 @@ nav > span {
   text-align: center;
 }
 
+.popup div {
+  margin: 0.5em auto;
+}
+
 .popup > * {
   width: 50%;
   margin: auto;
@@ -605,6 +609,7 @@ nav > span {
 
 .popup.errors {
   width: 90vw;
+  cursor: default;
 }
 
 .popup.errors > * {
@@ -677,6 +682,7 @@ nav > span {
   list-style-position: inside;
   list-style: none;
   text-align: left;
+  line-height: 2rem;
 }
 
 /* loader

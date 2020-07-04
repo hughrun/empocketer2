@@ -62,7 +62,8 @@
 					v-bind:list="activeList"
 					@cancel-manage="cancelManage" 
 					@delete-feed="deleteFeed" 
-					@loading="setLoading" 
+					@loading="setLoading"
+					@rename-feed="renameFeed"
 				></manage-feed>
 				<manage-account 
 					v-if="managingUser" 

@@ -56,6 +56,7 @@ cursor.execute('''
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS feeds(
         id INTEGER PRIMARY KEY NOT NULL,
+        link TEXT NOT NULL,
         url TEXT NOT NULL,
         name TEXT NOT NULL,
         image TEXT NOT NULL, 
@@ -153,6 +154,7 @@ def add_feed_to_db(args):
                     "error" : "URL has no feed or does not exist"
                 }
 
+        # TODO: simplify this to not use the image from feeds
         if 'image' in data.feed:
             image_url = data.feed.image.href
             # to create a new image filename, use a regex removing http(s):// and also any slashes and whatever comes after (e.g. "/feed")
@@ -197,6 +199,9 @@ def add_feed_to_db(args):
         
         pf = time.mktime(date_stamp)
         
+        if 'link' in data.feed and len(data.feed.link) > 0:
+            feed_link = data.feed.link
+
         if 'title' in data.feed and len(data.feed.title) > 0:
             feed_title = data.feed.title[:60]
         elif 'link' in data.feed and len(data.feed.link) > 0:
@@ -215,8 +220,8 @@ def add_feed_to_db(args):
         u = (session['username'],)
         cursor.execute('SELECT token FROM users WHERE username=?', u)
         user_token = cursor.fetchone()
-        f = (feed_title, feed, image_location, published, pf, 0, args['list_id'], user_token[0],)
-        cursor.execute('INSERT INTO feeds(name, url, image, last_published, last_published_float, failing, list_id, user_token) VALUES(?,?,?,?,?,?,?,?)', f)
+        f = (feed_title, feed, feed_link, image_location, published, pf, 0, args['list_id'], user_token[0],)
+        cursor.execute('INSERT INTO feeds(name, url, link, image, last_published, last_published_float, failing, list_id, user_token) VALUES(?,?,?,?,?,?,?,?,?)', f)
         db.commit()
         feed_id = cursor.lastrowid
         db.close()
@@ -403,7 +408,7 @@ def user_details():
         cursor = db.cursor()
         t = (session['username'],)
         cursor.execute('''
-                SELECT feeds.id AS feedid, lists.id AS listid, lists.name AS listname, feeds.name AS feedname, feeds.url AS url, feeds.image AS image, feeds.last_published AS latest, feeds.failing AS status FROM lists
+                SELECT feeds.id AS feedid, lists.id AS listid, lists.name AS listname, feeds.name AS feedname, feeds.url AS url, feeds.link as link, feeds.image AS image, feeds.last_published AS latest, feeds.failing AS status FROM lists
                 LEFT JOIN feeds ON lists.id = feeds.list_id
                 WHERE lists.owner_username=?''', t)
         user_data = cursor.fetchall()
@@ -414,7 +419,7 @@ def user_details():
         # That is, we have a list of tuples but need a nested dict
         # collections.namedtuple to the rescue...
 
-        UserLists = namedtuple('UserLists', 'feedid, listid, listname, feedname, url, image, latest, status')
+        UserLists = namedtuple('UserLists', 'feedid, listid, listname, feedname, url, link, image, latest, status')
 
         lists = {}
         obj = { 
@@ -429,7 +434,15 @@ def user_details():
             else:
                 status_class = 'active'
 
-            addition = {"feed_id" : entry.feedid, "name" : entry.feedname, "url" : entry.url, "latest" : entry.latest, "image" : entry.image, "status" : status_class}
+            addition = {
+                "feed_id" : entry.feedid, 
+                "name" : entry.feedname, 
+                "url" : entry.url, 
+                "link" : entry.link, 
+                "latest" : entry.latest, 
+                "image" : entry.image, 
+                "status" : status_class
+                }
 
             # construct a dict for each list of feeds
             if entry.listid in lists:
@@ -611,6 +624,43 @@ def rename_list():
                 return {
                     "status" : "error",
                     "error" : "Valid list name and id must be provided"
+                }
+            else:
+                return {
+                    "status" : "error",
+                    "error" : str(e)
+                }
+    else:
+        abort(401)
+
+@app.route('/rename-feed', methods=['POST']) 
+def rename_feed():
+    if 'username' in session:
+        try:
+            req_data = request.get_json()
+            feed_id = req_data['feed_id'] 
+            permitted = user_owns_feed(feed_id)
+            # Check whether the list belongs to this user
+            if permitted:
+                db = sqlite3.connect('data/empocketer.db')
+                cursor = db.cursor()
+                f = (req_data['feed_name'], feed_id,) 
+                cursor.execute('UPDATE feeds SET name=? WHERE id=?', f)
+                db.commit()
+                db.close()
+                # return JSON
+                return {
+                    "status" : "ok",
+                    "error" : None
+                }
+            else:
+                abort(403)
+
+        except Exception as e:
+            if str(e)[:10] == "'NoneType'":
+                return {
+                    "status" : "error",
+                    "error" : "Valid feed name and id must be provided"
                 }
             else:
                 return {
