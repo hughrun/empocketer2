@@ -154,28 +154,8 @@ def add_feed_to_db(args):
                     "error" : "URL has no feed or does not exist"
                 }
 
-        # TODO: simplify this to not use the image from feeds
-        if 'image' in data.feed:
-            image_url = data.feed.image.href
-            # to create a new image filename, use a regex removing http(s):// and also any slashes and whatever comes after (e.g. "/feed")
-            url_string = args['feed'] if 'feed' in args else args['url']
-            p = re.compile('(http)+s?(://)+([^/#]*)?')
-            m =  p.match(url_string)
-            image_name = m.group(3)
-            # the image is referenced from this script but also from the html file
-            # so we need to use a different root directory when saving it
-            # from what we reference in the database
-            image_real_location = './static/images/feeds/' + image_name + '.jpg'
-            try:
-                r = requests.get(image_url, allow_redirects=True, timeout=20)
-                open(image_real_location, 'wb+').write(r.content)
-                image_location = '.' + image_real_location
-            except:
-                x = randint(1, 20)
-                image_location = '../static/images/default/' + str(x) + '.jpg'
-        else:
-            x = randint(1, 20)
-            image_location = '../static/images/default/' + str(x) + '.jpg'
+        x = randint(1, 20)
+        image_location = '../static/images/feeds/' + str(x) + '.jpg'
 
         if 'updated' in data.feed:
             date_stamp = data.feed.updated_parsed
@@ -199,7 +179,7 @@ def add_feed_to_db(args):
         
         pf = time.mktime(date_stamp)
         
-        if 'link' in data.feed and len(data.feed.link) > 0:
+        if 'link' in data.feed:
             feed_link = data.feed.link
 
         if 'title' in data.feed and len(data.feed.title) > 0:
@@ -231,7 +211,8 @@ def add_feed_to_db(args):
             "image" : image_location,
             "latest" : published,
             "name" : feed_title,
-            "url" : feed 
+            "url" : feed,
+            "link" : feed_link 
         }
 
         return {
