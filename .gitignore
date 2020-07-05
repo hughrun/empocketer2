@@ -1,5 +1,3 @@
 *.map
 *.db
-static/images/feeds/*.jpg
-static/images/feeds/*.png
 settings.py
