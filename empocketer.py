@@ -619,13 +619,14 @@ def rename_feed():
     if 'username' in session:
         try:
             req_data = request.get_json()
-            feed_id = req_data['feed_id'] 
+            feed_id = req_data['feed_id']
+            new_name = req_data['feed_name'][:60] # slice at 60 chars
             permitted = user_owns_feed(feed_id)
             # Check whether the list belongs to this user
             if permitted:
                 db = sqlite3.connect('data/empocketer.db')
                 cursor = db.cursor()
-                f = (req_data['feed_name'], feed_id,) 
+                f = (new_name, feed_id,) 
                 cursor.execute('UPDATE feeds SET name=? WHERE id=?', f)
                 db.commit()
                 db.close()

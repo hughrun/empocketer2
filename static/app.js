@@ -472,7 +472,7 @@ var vm = new Vue({
             let index = this.lists.findIndex(x => x = this.activeList)
             let f = (x) => x.feed_id == data.feed_id
             let i = this.activeList.feeds.findIndex(f)
-            Vue.set(this.lists[index].feeds[i], 'name', data.feed_name)
+            Vue.set(this.lists[index].feeds[i], 'name', data.feed_name.slice(0,60))
           } else {
             this.messages.push(res.data.error)
           }
