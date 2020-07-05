@@ -597,7 +597,7 @@ section.listing {
 }
 
 #home .main {
-  background: center / cover url('images/empocketer.jpg');
+  background: 0 -50px / cover no-repeat url('images/empocketer.jpg');
   background-size: cover;
   height: 100%;
   min-height: 100vh;
@@ -608,13 +608,13 @@ section.listing {
 }
 
 #logo {
-  margin-top: 45vh;
   text-align: center;
 }
 
 #logo h1,
 #logo h2 {
   color: $header-colour;
+  text-shadow: 1px 1px $neutral-colour;
   font-family: $title-font;
   font-size: 200%;
 }
@@ -624,7 +624,7 @@ section.listing {
 }
 
 #logo a {
-  background-color: transparent;
+  background-color: rgba(251, 234, 211, 0.5);
   color: $header-colour;
   border: 2px solid $header-colour;
   border-radius: 5px;

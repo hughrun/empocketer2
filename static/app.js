@@ -35,7 +35,7 @@ Vue.component('error-list', {
       <li v-for="error in errors"> [[ error ]]</li>
     </ul>
   </div>
-  <button class="cancel" v-on:click="exit">Exit</button>
+  <button class="cancel listing" v-on:click="exit">Exit</button>
 </div>
 `,
   methods: {
