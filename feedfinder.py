@@ -37,7 +37,10 @@ def findfeed(site):
         href = a.get("href",None)
         if href:
             if "xml" in href or "rss" in href or "feed" in href:
-                possible_feeds.append(base+href)
+                if bool(urllib.parse.urlparse(href).netloc): # check for relative URLs
+                    possible_feeds.append(href)
+                else:
+                    possible_feeds.append(base+href)
     for url in list(set(possible_feeds)):
         f = feedparser.parse(url)
         if len(f.entries) > 0 and f.status == 200: # don't use redirects
