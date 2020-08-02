@@ -22,6 +22,7 @@ from feedfinder import findfeed
 from flask import Flask, abort, make_response, redirect, render_template, request, Response, session, url_for
 import json
 import listparser as lp
+import logging
 from random import randint
 import re
 import requests
@@ -31,6 +32,16 @@ import sqlite3
 import time
 
 socket.setdefaulttimeout(60) # set a socket timeout for feedparser
+app = Flask(__name__) # set var for the app
+
+# ===============================================================
+# Make logging pass through gunicorn
+# ===============================================================
+
+if __name__ != '__main__':
+    gunicorn_logger = logging.getLogger('gunicorn.error')
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
 
 # ===============================================================
 # Create sqlite database if it does not already exist
@@ -64,7 +75,7 @@ cursor.execute('''
         last_published_float REAL,
         failing INTEGER NOT NULL, 
         list_id INTEGER NOT NULL,
-        user_token TEXT NOT NULL,
+        user_token TEXT,
         UNIQUE(url, list_id)
     )
 ''')
@@ -106,21 +117,21 @@ def user_owns_feed(feed_id):
         cursor = db.cursor()
         t = (feed_id,)
         cursor.execute('''
-                SELECT user_token FROM feeds
-                WHERE feeds.id=?''', t)
+            SELECT list_id FROM feeds
+            WHERE feeds.id=?''', t)
         feed_data = cursor.fetchone()
         if feed_data:
-            # does this token belong to the logged in user?
+            # does this list belong to the logged in user?
             u = (session['username'],)
             cursor.execute('''
-                SELECT token FROM users
-                WHERE users.username=?''', u)
-            list_data = cursor.fetchone()
+                SELECT id FROM lists
+                WHERE lists.owner_username=?''', u)
+            list_data = cursor.fetchall()
             db.close()
-            if list_data[0] == feed_data[0]:
-                return True
-            else:
-                return False
+            for ls in list_data:
+                if list_data[0] == ls:
+                    return True
+            return False # if nothing is true then it's false
         else:
             db.close()
             abort(400) # bad request (id wasn't provided or doesn't exist)
@@ -197,6 +208,11 @@ def add_feed_to_db(args):
         # connect to database
         db = sqlite3.connect('data/empocketer.db')
         cursor = db.cursor()
+        # TODO: we don't actually do anything with the user token
+        # any more, but for legacy reasons it's still collected
+        # because the column used to have a NOT NULL constraint
+        # when I'm feeling less lazy I'll set up a migration script
+        # to remove this constraint
         u = (session['username'],)
         cursor.execute('SELECT token FROM users WHERE username=?', u)
         user_token = cursor.fetchone()
@@ -341,17 +357,16 @@ def logout():
 def delete_user():
     # check is logged in
     if 'username' in session:
-
         try:
             db = sqlite3.connect('data/empocketer.db')
             cursor = db.cursor()
             u = (session['username'],)
-            cursor.execute('SELECT token FROM users WHERE username=?', u)
-            user_token = cursor.fetchone()[0]
-            t = (user_token,)
             # remove feeds
-            cursor.execute('DELETE FROM feeds WHERE feeds.user_token=?', t)
-            db.commit()
+            cursor.execute('SELECT id FROM lists WHERE lists.owner_username=?', u)
+            lists_to_delete = cursor.fetchall()
+            for l in lists_to_delete:
+                cursor.execute('DELETE FROM feeds WHERE feeds.list_id=?', l)
+                db.commit()
             # remove lists
             cursor.execute('DELETE FROM lists WHERE lists.owner_username=?', u)
             db.commit()
@@ -363,7 +378,8 @@ def delete_user():
             session.pop('username', None)
             # redirect
             return redirect(url_for('delete_account'))
-        except Exception:
+        except Exception as err:
+            app.logger.error(err)
             abort(500)
     else:
         abort(401)
