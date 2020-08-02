@@ -412,7 +412,7 @@ var vm = new Vue({
       })
       .then( res => {
         if (!res.data.error) {
-          let l = x => x.list_id == args.list
+          let l = x => x.list_id === args.list
           let i = this.lists.findIndex(l)
           let index = this.lists[i].feeds.indexOf(args.feed)
           Vue.delete(this.lists[i].feeds, index)
@@ -469,7 +469,7 @@ var vm = new Vue({
         axios.post('/rename-feed', data)
         .then( res => {
           if (!res.data.error) {
-            let index = this.lists.findIndex(x => x = this.activeList)
+            let index = this.lists.findIndex(x => x === this.activeList)
             let f = (x) => x.feed_id == data.feed_id
             let i = this.activeList.feeds.findIndex(f)
             Vue.set(this.lists[index].feeds[i], 'name', data.feed_name.slice(0,60))
