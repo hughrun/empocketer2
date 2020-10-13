@@ -2,7 +2,7 @@
 
 Empocketer allows you to subscribe to RSS feeds and pipe new content directly into your Pocket account. You can use the site URL, feed URL, or an OPML file to add feeds, and use lists to keep them organised. It's essentially an RSS 'feed reader' except it pipes articles into Pocket where you keep all the other articles you're never going to read.
 
-See it in action at [demo.empocketer.hugh.run](https://demo.empocketer.hugh.run)
+See it in action at [empocketer.hugh.run](https://empocketer.hugh.run)
 
 ### Credits
 
