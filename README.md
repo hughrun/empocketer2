@@ -28,7 +28,7 @@ To periodically check feeds you need to set up a cronjob like this:
 15 * * * * /bin/docker exec -d empocketer_app sh -c "/usr/local/bin/python /usr/src/app/checker.py"
 ```
 
-You will need to check your path to `docker` as it depends how your system is set up.
+You will need to check the path to `docker` as it depends how your system is set up.
 
 ## Contributing & reporting bugs
 

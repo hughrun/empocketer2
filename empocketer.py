@@ -213,9 +213,10 @@ def add_feed_to_db(args):
         # because the column used to have a NOT NULL constraint
         # when I'm feeling less lazy I'll set up a migration script
         # to remove this constraint
-        u = (session['username'],)
-        cursor.execute('SELECT token FROM users WHERE username=?', u)
-        user_token = cursor.fetchone()
+        # u = (session['username'],)
+        # cursor.execute('SELECT token FROM users WHERE username=?', u)
+        # user_token = cursor.fetchone()
+        user_token = "xxx"
         f = (feed_title, feed, feed_link, image_location, published, pf, 0, args['list_id'], user_token[0],)
         cursor.execute('INSERT INTO feeds(name, url, link, image, last_published, last_published_float, failing, list_id, user_token) VALUES(?,?,?,?,?,?,?,?,?)', f)
         db.commit()

@@ -18,6 +18,7 @@ def check_feeds():
     for feed in feeds:
         data = feedparser.parse(feed[0])
         lpf = feed[1]
+        new_published = None
         db = sqlite3.connect('data/empocketer.db')
         c = db.cursor()
         c.execute('SELECT token FROM users INNER JOIN lists ON lists.owner_username = users.username WHERE lists.id = ' + str(feed[2]))
@@ -44,24 +45,27 @@ def check_feeds():
 
                   r = requests.post(url, data=payload, headers=headers)
                   if r.status_code == 200:
-                      # update the last_published and last_published_float values for this feed listing, but only if the published date is newer than the most recent post recorded.
+                      if time.mktime(post.published_parsed) > lpf:
+                          if new_published and time.mktime(post.published_parsed) > new_published:
+                              new_published = post.published_parsed
 
-                      # Note that we don't rely on the value we got from the database because if the feed is arranged in reverse-chronological order we will end up recording a date that is the least-recent post in the feed instead of the most-recent.
-                    
-                    if time.mktime(post.published_parsed) > lpf:
-
-                        db = sqlite3.connect('data/empocketer.db')
-                        cursor = db.cursor()
-                        published = time.strftime('%a %d %b %Y', post.published_parsed)
-                        t = (published, time.mktime(post.published_parsed),feed[3],) 
-                        cursor.execute('UPDATE feeds SET last_published=?, last_published_float=? WHERE id=?', t)
-                        db.commit()
-                        db.close()
-
-                        # update lpf value for the rest of this loop
-                        lpf = time.mktime(post.published_parsed)
+                  else:
+                      print(datetime.datetime.now(), ' - Pocket API error for ', post.link)
+                      print(r.text)
 
               except Exception as e:
-                print('ERROR', datetime.datetime.now(), str(e))
+                print('ERROR contacting Pocket', datetime.datetime.now(), str(e))
+
+        if new_published:
+            # Update last published value
+            # We do this AFTER running through all articles in case there are multiple posts since the last run
+            db = sqlite3.connect('data/empocketer.db')
+            cursor = db.cursor()
+            published = time.strftime('%a %d %b %Y', new_published)
+            t = (published, time.mktime(new_published),feed[3],) 
+            cursor.execute('UPDATE feeds SET last_published=?, last_published_float=? WHERE id=?', t)
+            db.commit()
+            db.close()
+
 # trigger
 check_feeds()
