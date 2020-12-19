@@ -46,9 +46,8 @@ def check_feeds():
                   r = requests.post(url, data=payload, headers=headers)
                   if r.status_code == 200:
                       if time.mktime(post.published_parsed) > lpf:
-                          if new_published and time.mktime(post.published_parsed) > new_published:
+                          if not new_published or (new_published and time.mktime(post.published_parsed) > time.mktime(new_published) ):
                               new_published = post.published_parsed
-
                   else:
                       print(datetime.datetime.now(), ' - Pocket API error for ', post.link)
                       print(r.text)
