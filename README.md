@@ -19,7 +19,16 @@ This app uses [Flask](https://flask.palletsprojects.com/en/1.1.x/), [Vue](https:
 3. paste in your app `consumer_key` and your app's `url` into settings.py, and if necessary adjust the `frequency` (in hours) that the checker function runs (default is 2 hours)
 4. set up a reverse-proxy (nginx recommended) to route localhost port 5000 to your app's URL
 5. `docker-compose up --build -d`
-6. consider setting up a firewall to block external access to port 5000 if you haven't done so already
+6. add a line to your crontab to periodically trigger `checker.py`.
+7. consider setting up a firewall to block external access to port 5000 if you haven't done so already
+
+To periodically check feeds you need to set up a cronjob like this:
+
+```cron
+15 * * * * /bin/docker exec -d empocketer_app sh -c "/usr/local/bin/python /usr/src/app/checker.py"
+```
+
+You will need to check your path to `docker` as it depends how your system is set up.
 
 ## Contributing & reporting bugs
 

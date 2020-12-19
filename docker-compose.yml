@@ -11,15 +11,6 @@ services:
       - data:/usr/src/app/data
       - feed_images:/usr/src/app/static/images/feeds
 
-  checker:
-    build:
-      context: .
-      dockerfile: checker/Dockerfile
-    container_name: empocketer_checker
-    restart: unless-stopped
-    volumes:
-      - data:/usr/src/app/data
-
 volumes:
   data:
     driver: local

@@ -1,4 +1,4 @@
-import datetime, feedparser, json, requests, sched, settings, sqlite3, time
+import datetime, feedparser, json, requests, settings, sqlite3, time
 
 # ===============================================================
 # here's the function to check all the feeds every X hours
@@ -6,11 +6,15 @@ import datetime, feedparser, json, requests, sched, settings, sqlite3, time
 
 def check_feeds():
 
-    db = sqlite3.connect('data/empocketer.db')
-    cursor = db.cursor()
-    cursor.execute('SELECT DISTINCT url, last_published_float, user_token, id FROM feeds')
-    feeds = cursor.fetchall()
-    db.close()
+    try:
+        db = sqlite3.connect('data/empocketer.db')
+        cursor = db.cursor()
+        cursor.execute('SELECT DISTINCT url, last_published_float, user_token, id FROM feeds')
+        feeds = cursor.fetchall()
+        db.close()
+    except Exception as e:
+        print('ERROR connecting to DB ', datetime.datetime.now(), str(e))
+
     for feed in feeds:
         data = feedparser.parse(feed[0])
         lpf = feed[1]
@@ -54,15 +58,5 @@ def check_feeds():
 
               except Exception as e:
                 print('ERROR', datetime.datetime.now(), str(e))
-
-    schedule_run()
-
-# Schedule checking feeds every minute 
-def schedule_run():
-    s = sched.scheduler(time.time, time.sleep)
-    frequency = 60 * 60 * settings.frequency
-    s.enter(frequency, 1, check_feeds)
-    s.run()
-
-# kick off
-schedule_run()
+# trigger
+check_feeds()
