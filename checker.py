@@ -1,7 +1,7 @@
 import datetime, feedparser, json, requests, settings, sqlite3, time
 
 # ===============================================================
-# here's the function to check all the feeds every X hours
+# here's the function to check all the feeds every X period of time
 # ===============================================================
 
 def check_feeds():
@@ -9,7 +9,7 @@ def check_feeds():
     try:
         db = sqlite3.connect('data/empocketer.db')
         cursor = db.cursor()
-        cursor.execute('SELECT DISTINCT url, last_published_float, user_token, id FROM feeds')
+        cursor.execute('SELECT DISTINCT url, last_published_float, list_id, id FROM feeds')
         feeds = cursor.fetchall()
         db.close()
     except Exception as e:
@@ -18,6 +18,12 @@ def check_feeds():
     for feed in feeds:
         data = feedparser.parse(feed[0])
         lpf = feed[1]
+        db = sqlite3.connect('data/empocketer.db')
+        c = db.cursor()
+        c.execute('SELECT token FROM users INNER JOIN lists ON lists.owner_username = users.username WHERE lists.id = ' + str(feed[2]))
+        token = c.fetchone()[0]
+        db.close()
+
         for post in data.entries:
             if ( 'published_parsed' in post and time.mktime(post.published_parsed) > lpf):
 
@@ -33,11 +39,10 @@ def check_feeds():
                           "url": post.link,
                           "tags": "empocketer",
                           "consumer_key": settings.consumer_key,
-                          "access_token": feed[2]
+                          "access_token": token
                       })
 
                   r = requests.post(url, data=payload, headers=headers)
-
                   if r.status_code == 200:
                       # update the last_published and last_published_float values for this feed listing, but only if the published date is newer than the most recent post recorded.
 
